@@ -1,5 +1,6 @@
 const express = require("express");
 const axios = require("axios");
+require("dotenv").config();
 
 const app = express();
 const port = process.env.NODE_ENV || 3000;
@@ -11,6 +12,7 @@ const matchesTable = require("./models/matche");
 const teamTable = require("./models/team");
 const sequelize = require("./config/connect");
 
+sequelize.sync();
 sequelize
   .authenticate()
   .then(() => {
@@ -22,40 +24,48 @@ sequelize
 
 const { Wilders } = sequelize.models;
 
-app.get("/wilders", (req, res) => {
-  axios
+app.get("/wilders", async (req, res) => {
+  await axios
     .get(
       "https://us-central1-rc-league.cloudfunctions.net/wildcodeschool/wilders"
     )
     .then(response => {
       console.log(response.data);
-      wildersTable.create(response.data).catch(err => console.log(err));
+      response.data.forEach(wilder =>
+        wildersTable.create(wilder).catch(err => console.log(err))
+      );
       // res.json(response.data);
     });
+  res.json(await wildersTable.findAll());
 });
 
-app.get("/matches", (req, res) => {
-  axios
+app.get("/matches", async (req, res) => {
+  await axios
     .get(
       "https://us-central1-rc-league.cloudfunctions.net/wildcodeschool/matches"
     )
     .then(response => {
       console.log(response.data);
-      matchesTable.create(response.data).catch(err => console.log(err));
+      response.data.forEach(matche =>
+        matchesTable.create(matche).catch(err => console.log(err))
+      );
       // res.json(response.data);
     });
+  res.json(await matchesTable.findAll());
 });
 
-app.get("/team", (req, res) => {
-  axios
+app.get("/team", async (req, res) => {
+  await axios
     .get(
       "https://us-central1-rc-league.cloudfunctions.net/wildcodeschool/campuses"
     )
     .then(response => {
       console.log(response.data);
-      teamTable.create(response.data).catch(err => console.log(err));
+      response.data.forEach(team =>
+        teamTable.create(team).catch(err => console.log(err))
+      );
       // res.json(response.data);
     });
+  res.json(await teamTable.findAll());
 });
-
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

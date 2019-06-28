@@ -7,6 +7,5 @@ module.exports = team = sequelize.define("team", {
   city: Sequelize.STRING,
   country: Sequelize.STRING,
   uid: Sequelize.STRING,
-  manager: Sequelize.ARRAY(Sequelize.JSON),
-  creation: Sequelize.DATEONLY
+  manager: Sequelize.JSON
 });
